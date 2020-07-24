@@ -6,9 +6,7 @@ import (
 	"encoding/json"
 	"params"
 	"auth"
-	// "errors"
-	// "model"
-	// "my_jwt"
+	"errors"
 )
 
 type response struct {
@@ -29,14 +27,23 @@ func (resp response) getError(error string) string {
 }
 
 func setHandler(w http.ResponseWriter, r *http.Request, param params.Init) {
-	fmt.Fprintf(w, "set")
+	var resp response
+
+	strR, err := resp.get(200, map[string]string{"ref": "ref"})
+ 	if err != nil {
+ 		http.Error(w, resp.getError(err.Error()), http.StatusBadRequest)
+ 		return
+ 	}
+
+ 	fmt.Fprintf(w, strR)
 }
 
 func handlerWrapper(param params.Init, f func(http.ResponseWriter, *http.Request, params.Init)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 		if !auth.IsAuth(r) {
-			http.Error(w, "Bad authorization", http.StatusBadRequest)
+			var resp response
+			http.Error(w, resp.getError(errors.New("Bad authorization").Error()), http.StatusBadRequest)
  			return
 		} 
 		f(w, r, param)
@@ -48,11 +55,8 @@ func GetServer(param params.Init) error {
 		fmt.Fprintf(w, "error")
 	})
 
-	// http.Handle("/test", testHendler(param))
-	
 	http.HandleFunc("/set", handlerWrapper(param, setHandler))
 
-	// http.HandleFunc("/check", handlerWrapper(param, checkHandler))
 	err := http.ListenAndServe(param.Port, nil)
 	return err
 }
