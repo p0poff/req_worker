@@ -28,8 +28,14 @@ func (resp response) getError(error string) string {
 
 func setHandler(w http.ResponseWriter, r *http.Request, param params.Init) {
 	var resp response
+	mqClient := getMqService()
+	ref, err := mqClient.Send(r)
+	if err != nil {
+		http.Error(w, resp.getError(err.Error()), http.StatusBadRequest)
+ 		return
+	}
 
-	strR, err := resp.get(200, map[string]string{"ref": "ref"})
+	strR, err := resp.get(200, map[string]string{"ref": ref})
  	if err != nil {
  		http.Error(w, resp.getError(err.Error()), http.StatusBadRequest)
  		return
