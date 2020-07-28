@@ -44,6 +44,24 @@ func setHandler(w http.ResponseWriter, r *http.Request, param params.Init) {
  	fmt.Fprintf(w, strR)
 }
 
+func getHandler(w http.ResponseWriter, r *http.Request, param params.Init) {
+	var resp response
+	respClient := getRespService()
+	workResponse, err := respClient.GetResp(r)
+	if err != nil {
+		http.Error(w, resp.getError(err.Error()), http.StatusBadRequest)
+ 		return
+	}
+
+	strR, err := resp.get(200, map[string]string{"response": workResponse})
+ 	if err != nil {
+ 		http.Error(w, resp.getError(err.Error()), http.StatusBadRequest)
+ 		return
+ 	}
+
+ 	fmt.Fprintf(w, strR)
+}
+
 func handlerWrapper(param params.Init, f func(http.ResponseWriter, *http.Request, params.Init)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -62,6 +80,8 @@ func GetServer(param params.Init) error {
 	})
 
 	http.HandleFunc("/set", handlerWrapper(param, setHandler))
+
+	http.HandleFunc("/get", handlerWrapper(param, getHandler))
 
 	err := http.ListenAndServe(param.Port, nil)
 	return err
