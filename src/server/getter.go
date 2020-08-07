@@ -1,23 +1,13 @@
 package server
 
 import (
-	"mq_client"
-	"resp_client"
-	"net/http"
+	"params"
 )
 
-type mqSrv interface {
-	Send(*http.Request) (string, error)
+func getMqService(param params.Init) params.MqSrv {
+	return param.MqClient
 }
 
-type respSrv interface {
-	GetResp(*http.Request) (string, error)
-}
-
-func getMqService() mqSrv {
-	return new(mq_client.MqMock)
-}
-
-func getRespService() respSrv {
-	return new(resp_client.RespMock)
+func getRespService(param params.Init) params.RespSrv {
+	return param.RespClient
 }

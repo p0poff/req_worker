@@ -28,7 +28,7 @@ func (resp response) getError(error string) string {
 
 func setHandler(w http.ResponseWriter, r *http.Request, param params.Init) {
 	var resp response
-	mqClient := getMqService()
+	mqClient := getMqService(param)
 	ref, err := mqClient.Send(r)
 	if err != nil {
 		http.Error(w, resp.getError(err.Error()), http.StatusBadRequest)
@@ -46,7 +46,7 @@ func setHandler(w http.ResponseWriter, r *http.Request, param params.Init) {
 
 func getHandler(w http.ResponseWriter, r *http.Request, param params.Init) {
 	var resp response
-	respClient := getRespService()
+	respClient := getRespService(param)
 	workResponse, err := respClient.GetResp(r)
 	if err != nil {
 		http.Error(w, resp.getError(err.Error()), http.StatusBadRequest)
