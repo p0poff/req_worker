@@ -13,3 +13,7 @@ func (mq *MqMock) Send(r *http.Request) (string, error)  {
 	mq.Ref = "mock ref string"
 	return mq.Ref, nil
 }
+
+func (mq *MqMock) Init(url string) error {
+	return nil
+}

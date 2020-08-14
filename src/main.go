@@ -8,8 +8,12 @@ import (
 
 func main() {
 	fmt.Println("request worker go...")
-	param := params.InitParams()
-	err := server.GetServer(param)
+	param, err := params.InitParams()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = server.GetServer(param)
 	if err != nil {
         fmt.Println(err)
     }
