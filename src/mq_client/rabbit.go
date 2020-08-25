@@ -8,8 +8,12 @@ import (
 	my_amqp "github.com/streadway/amqp"
 )
 
+type rndTokenInterface interface {
+	TokenGenerator() string
+}
+
 type RabbitMq struct {
-	Ref string
+	Ref rndTokenInterface
 	Connect *my_amqp.Connection
 	Queue string `json:"queue"`
 	Message string `json:"message"`
@@ -25,8 +29,8 @@ func (mq *RabbitMq) Send(r *http.Request) (string, error)  {
 		return "", err
 	}
 	
-	mq.Ref = "rabbit ref string"
-	return mq.Ref, nil
+	ref := mq.Ref.TokenGenerator()
+	return ref, nil
 }
 
 func (mq *RabbitMq) valid() error {
