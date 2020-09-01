@@ -19,6 +19,12 @@ type RabbitMq struct {
 	pullQueues map[string]my_amqp.Queue
 	Queue string `json:"queue"`
 	Message string `json:"message"`
+	RbMsg rabbitMqMsg
+}
+
+type rabbitMqMsg struct {
+	Ref string `json:"ref"`
+	Message string `json:"message"`
 }
 
 func (mq *RabbitMq) Send(r *http.Request) (string, error)  {
@@ -32,14 +38,20 @@ func (mq *RabbitMq) Send(r *http.Request) (string, error)  {
 	}
 	
 	ref := mq.Ref.TokenGenerator()
+	mq.RbMsg.Ref = ref
+	mq.RbMsg.Message = mq.Message
 	queue, err := mq.getQueue(mq.Queue)
+	if err != nil {
+		return "", err
+	}
+	message, err := json.Marshal(mq.RbMsg)
 	if err != nil {
 		return "", err
 	}
 	err = mq.Channel.Publish("", queue.Name, false, false, my_amqp.Publishing{
         DeliveryMode: my_amqp.Persistent,
         ContentType:  "text/plain",
-        Body:         []byte(mq.Message),
+        Body:         []byte(message),
     })
 	return ref, err
 }
