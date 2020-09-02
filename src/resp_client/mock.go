@@ -13,3 +13,7 @@ func (resp *RespMock) GetResp(r *http.Request) (string, error)  {
 	resp.Response = "mock response string"
 	return resp.Response, nil
 }
+
+func (resp *RespMock) Init(param RespParam) error {
+	return nil
+}
